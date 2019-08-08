@@ -65,3 +65,76 @@ class Stream(object):
             return isinstance(self.file.read(0), bytes)
         except Exception:
             pass
+
+
+class FilteredStream(Stream):
+    def __init__(self, file, *filters):
+        super(FilteredStream, self).__init__(file)
+        self.filters = list(filters)
+
+    def copy(self):
+        return self.__class__(self.file, *self.filters)
+
+    def _apply_filters(self, line):
+        for f in self.filters:
+            line = f(line)
+            if line is None:
+                break
+        return line
+
+    def _iter_lines(self):
+        for line in self.file:
+            line = self._apply_filters(line)
+            if line is not None:
+                yield line
+
+    def __iter__(self):
+        if self.filters:
+            return self._iter_lines()
+        return super(FilteredStream, self).__iter__()
+
+    def lines(self):
+        return list(self)
+
+    def add_filters(self, *funcs):
+        self.filters.extend(funcs)
+        return self
+
+    def __call__(self, func, *args, **kwargs):
+        self.filters.append(lambda s: func(s, *args, **kwargs))
+        return self
+
+
+class GeneralStream(FilteredStream):
+    @staticmethod
+    def _apply_a_filter(func, lgen):
+        for line in lgen:
+            rv = func(line)
+            if rv is None:
+                continue
+            if isinstance(rv, (str, bytes)):
+                yield rv
+                continue
+            try:
+                lines = iter(rv)
+            except TypeError:
+                yield rv
+                continue
+            while True:
+                try:
+                    yield next(lines)
+                except StopIteration:
+                    break
+
+    def _apply_filters(self, lines):
+        for f in self.filters:
+            lines = (self._apply_a_filter(f, l) for l in lines)
+        for line in lines:
+            yield line
+
+    def _iter_lines(self):
+        lgen = self.file
+        for f in self.filters:
+            lgen = self._apply_a_filter(f, lgen)
+        for line in lgen:
+            yield line
