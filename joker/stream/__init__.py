@@ -2,4 +2,4 @@
 
 from joker.stream.base import Stream
 
-__version__ = '0.0'
+__version__ = '0.1'
