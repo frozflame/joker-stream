@@ -1,0 +1,4 @@
+include requirements.txt
+exclude joker-stream/test_joker_stream/*
+recursive-include joker/stream/templates *.html
+
