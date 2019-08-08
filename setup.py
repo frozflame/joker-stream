@@ -11,7 +11,7 @@ from setuptools import setup, find_packages
 
 _nsp = 'joker'
 _pkg = 'stream'
-_desc = ''
+_desc = 'File IO wrapper classes'
 _names = [_nsp, _pkg]
 _names = [s for s in _names if s]
 
@@ -44,9 +44,9 @@ config = {
     'version': version_find(),
     'description': '' + _desc,
     'keywords': '',
-    'url': 'example.com',
+    'url': 'https://github.com/frozflame/joker-stream',
     'author': 'anonym',
-    'author_email': 'anonym@example.com',
+    'author_email': 'frozflame@outlook.com',
     'license': "GNU General Public License (GPL)",
     'packages': find_packages(exclude=['test_*']),
     'zip_safe': False,
