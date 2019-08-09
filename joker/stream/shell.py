@@ -4,6 +4,7 @@
 from __future__ import unicode_literals, print_function
 
 import os
+
 from joker.stream.base import FilteredStream, GeneralStream
 
 
@@ -92,3 +93,35 @@ class ShellStream(FilteredStream):
 
 class GeneralShellStream(GeneralStream, ShellStream):
     pass
+
+
+class RecursiveInclusionStream(GeneralStream):
+    def setup(self, *filters):
+        if not filters:
+            self.filters = [self.inclusion_filter]
+            return self
+        _filters = []
+        for f in filters:
+            if getattr(f, '__name__', None) == 'inclusion_filter':
+                f = self.inclusion_filter
+            _filters.append(f)
+        self.filters = _filters
+        return self
+
+    @staticmethod
+    def check_for_inclusion(line):
+        import shlex
+        parts = shlex.split(line, comments=True)
+        if len(parts) == 2 and parts[0] in ['.', 'source']:
+            path = parts[1]
+            if os.path.isfile(path):
+                return path
+
+    def inclusion_filter(self, line):
+        path = self.check_for_inclusion(line)
+        if path:
+            return self.include(path)
+        return line
+
+    def include(self, path):
+        return self.open(path).setup(*self.filters)

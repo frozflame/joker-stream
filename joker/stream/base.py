@@ -9,7 +9,7 @@ import weakref
 
 
 class Stream(object):
-    opened = weakref.WeakValueDictionary()
+    all_opened_files = weakref.WeakValueDictionary()
     _preopened = {
         (1, 'w'): sys.stdout,
         (2, 'w'): sys.stderr,
@@ -29,7 +29,7 @@ class Stream(object):
         f = cls._preopened.get(k)
         if f is None:
             f = open(file, mode, *args, **kwargs)
-            cls.opened[id(f)] = f
+            cls.all_opened_files[id(f)] = f
         return cls(f)
 
     @classmethod
@@ -55,7 +55,7 @@ class Stream(object):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        if id(self.file) in self.opened:
+        if id(self.file) in self.all_opened_files:
             self.file.__exit__(exc_type, exc_val, exc_tb)
 
     def is_binary(self):
