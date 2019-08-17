@@ -125,3 +125,19 @@ class RecursiveInclusionStream(GeneralStream):
 
     def include(self, path):
         return self.open(path).setup(*self.filters)
+
+
+class AtomicTailerFilter(object):
+    def __init__(self, linesep=os.linesep):
+        self.broken_lines = []
+        self.linesep = linesep
+
+    def __call__(self, line):
+        if not line.endswith(self.linesep):
+            self.broken_lines.append(line)
+            return
+        if self.broken_lines:
+            prefix = ''.join(self.broken_lines)
+            self.broken_lines = []
+            return prefix + line
+        return line
