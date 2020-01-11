@@ -136,7 +136,7 @@ class GeneralStream(FilteredStream):
 
     def _apply_filters(self, lines):
         for f in self.filters:
-            lines = (self._apply_a_filter(f, l) for l in lines)
+            lines = (self._apply_a_filter(f, _) for _ in lines)
         for line in lines:
             yield line
 
