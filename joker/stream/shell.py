@@ -42,13 +42,8 @@ def _split_format(line, fmt, sep=None, maxsplit=-1, flags=None):
 
 class ShellStream(FilteredStream):
     def snl(self, extra_func=None):
+        """strip trailing newline charactors (linesep)"""
         self.filters.append(lambda s: s.rstrip(os.linesep))
-        if extra_func is not None:
-            self.filters.append(extra_func)
-        return self
-
-    def nonblank(self, extra_func=None):
-        self.filters.append(lambda s: (s.strip() or None))
         if extra_func is not None:
             self.filters.append(extra_func)
         return self
@@ -59,8 +54,19 @@ class ShellStream(FilteredStream):
         self.filters.append(lambda s: _sf(s, fmt, sep, maxsplit, flags))
         return self
 
+    def nonblank(self):
+        """discard lines containing only spaces"""
+        self.filters.append(lambda s: (s if s.strip() else None))
+        return self
+
     def strip(self, chars=None):
+        """strip leading and trailing spaces or specified characters"""
         self.filters.append(lambda s: s.strip(chars))
+        return self
+
+    def dense(self):
+        """strip and discard empty strings"""
+        self.filters.append(lambda s: (s.strip() or None))
         return self
 
     def replace(self, old, new):
