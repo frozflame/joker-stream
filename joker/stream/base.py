@@ -104,6 +104,14 @@ class FilteredStream(Stream):
         self.filters.append(lambda s: func(s, *args, **kwargs))
         return self
 
+    def positive(self):
+        self.filters.append(lambda s: (s or None))
+        return self
+
+    def negative(self):
+        self.filters.append(lambda s: (s and None))
+        return self
+
 
 class GeneralStream(FilteredStream):
     @staticmethod
