@@ -40,6 +40,13 @@ def _split_format(line, fmt, sep=None, maxsplit=-1, flags=None):
     return fmt.format(*parts)
 
 
+def safe_bracket(x, i, default=None):
+    try:
+        return x[i]
+    except LookupError:
+        return default
+
+
 class ShellStream(FilteredStream):
     def snl(self, extra_func=None):
         """strip trailing newline charactors (linesep)"""
@@ -95,6 +102,29 @@ class ShellStream(FilteredStream):
             self.strip()
         import shlex
         return self.add_filters(shlex.quote)
+
+    def __getitem__(self, idx):
+        if isinstance(idx, int):
+            self.filters.append(lambda line: line.split()[idx])
+        if isinstance(idx, str):
+            idx = int(idx)
+            from shlex import split
+            self.filters.append(lambda line: split(line)[idx])
+        return self
+
+    def nthcol(self, idx):
+        default = b'' if self.is_binary() else ''
+        if isinstance(idx, int):
+            self.filters.append(
+                lambda line: safe_bracket(line.split(), idx, default)
+            )
+        if isinstance(idx, str):
+            idx = int(idx)
+            from shlex import split
+            self.filters.append(
+                lambda line: safe_bracket(split(line), idx, default)
+            )
+        return self
 
 
 class GeneralShellStream(GeneralStream, ShellStream):
