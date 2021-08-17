@@ -4,7 +4,7 @@
 import os
 import re
 
-from setuptools import setup, find_packages
+from setuptools import setup, find_namespace_packages
 
 # CAUTION:
 # Do NOT import your package from your setup.py
@@ -48,7 +48,7 @@ config = {
     'author': 'anonym',
     'author_email': 'frozflame@outlook.com',
     'license': "GNU General Public License (GPL)",
-    'packages': find_packages(exclude=['test_*']),
+    'packages': find_namespace_packages(include=['joker.*']),
     'zip_safe': False,
     'install_requires': read("requirements.txt"),
     'classifiers': [
