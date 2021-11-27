@@ -40,9 +40,9 @@ def version_find():
 
 
 config = {
-    'name': '-'.join(_names),
+    'name': 'joker-stream',
     'version': version_find(),
-    'description': '' + _desc,
+    'description': 'File IO wrapper classes',
     'keywords': '',
     'url': 'https://github.com/frozflame/joker-stream',
     'author': 'anonym',
